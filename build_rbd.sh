@@ -28,3 +28,5 @@ for file_name in $(ls -1 ${rbd_name}/*data.${rbd_prefix}.* 2>/dev/null); do
   echo "dd conv=notrunc if=${file_name} of=${rbd_name}/${rbd_name} seek=$(($obj_size * $num)) bs=1 count=${count} 2>/dev/null"
   dd conv=notrunc if=${file_name} of=${rbd_name}/${rbd_name} seek=$(($obj_size * $num)) count=${count} bs=1 2>/dev/null
 done
+echo "全量块设备重组完成,文件保存路径${rbd_name}/${rbd_name}"
+file ${rbd_name}/${rbd_name}

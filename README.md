@@ -20,7 +20,7 @@ git clone https://github.com/361007018/ceph_rbd_recovery.git
 
 #### 全量块设备
 
-执行对象获取脚本
+1.执行对象获取脚本
 ```
 sh get_rbd_objects.sh [osd路径] [块设备名称]
 ```
@@ -31,7 +31,7 @@ sh get_rbd_objects.sh /mnt/ceph/osd/ my_rbd_name
 
 > 脚本执行完成后会在当前目录下生成一个以块设备名称命名的目录，目录中会保存所有查找到的块设备对象,并且会输出块设备前缀，需要记录该项用于后续的重组
 
-执行重组脚本
+2.执行重组脚本
 ```
 sh ./build_rbd.sh [块设备名称] [块设备前缀] [对象总数]
 ```
@@ -40,9 +40,47 @@ sh ./build_rbd.sh [块设备名称] [块设备前缀] [对象总数]
 sh ./build_rbd.sh my_rbd_name 39222ae8944a 51200
 ```
 
+重组后的块设备文件存放在`./my_rbd_name/my_rbd_name`,可用`rbd import`命令导入到ceph集群中
+
 > 提示:重组脚本中默认每个对象的大小为4M,如果需要修改请修改脚本中obj_size项。
 
 > 这里的对象总数参数并不是通过对象获取脚本得到的对象总数,而是根据块设备大小(如:200GB),根据该大小除以对象大小得到的对象总数(如:200GB/4M=51200).重组脚本中指定对象总数参数时必须大于或等于计算出的对象总数值,否则很有可能会出现重组时写入对象块偏移地址越界的问题。
 
 > 重组的过程比较耗费时间，需要耐心等待。
 
+#### 增量块设备
+
+> 这里的增量块设备(增量盘)是指在一个全量的块设备(母盘)的基础上做一层只读快照，在通过该只读快照克隆出的块设备。不适用于做了多层快照的场景。
+
+1.获取母盘对象
+```
+sh get_rbd_objects.sh [osd路径] [母盘块设备名称]
+```
+如
+```
+sh get_rbd_objects.sh /mnt/ceph/osd/ parent_rbd_name
+```
+
+2.获取增量盘对象
+```
+sh get_rbd_objects.sh [osd路径] [增量盘块设备名称]
+```
+如
+```
+sh get_rbd_objects.sh /mnt/ceph/osd/ my_rbd_name
+```
+
+3.重组增量块设备
+```
+sh ./build_inc_rbd.sh [母盘块设备名称] [母盘块设备前缀] [增量盘块设备名称] [增量盘块设备前缀] [对象总数]
+```
+如
+```
+sh ./build_rbd.sh parent_rbd_name 39sdfae8944a my_rbd_name 39222ae8944a 51200
+```
+
+重组后的块设备文件存放在`./my_rbd_name/my_rbd_name`,可用`rbd import`命令导入到ceph集群中
+
+#### 参考文档
+
+http://www.sysnote.org/2016/02/28/ceph-rbd-snap/
