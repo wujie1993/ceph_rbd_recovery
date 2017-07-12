@@ -5,16 +5,13 @@ rbd_name=$2
 echo "创建块设备对象保存目录"
 mkdir -p ${rbd_name}
 echo "Running command:mkdir -p ${rbd_name}"
-result=$(eval $cmd)
 echo "#####Success#####"
 
 echo "创建skip.log"
 touch ${rbd_name}/skip.log
 echo "Running command:touch ${rbd_name}/skip.log"
-result=$(eval $cmd)
 echo "" > ${rbd_name}/skip.log
 echo "Running command:echo '' > ${rbd_name}/skip.log"
-result=$(eval $cmd)
 echo "#####Success#####"
 
 echo "查找块设备id文件"
